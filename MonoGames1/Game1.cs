@@ -53,9 +53,7 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        _spriteBatch.Begin();
         _world.Draw(gameTime);
-        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
@@ -66,20 +64,6 @@ public class Game1 : Game
         var player = _world.CreateEntity();
         player.Attach(new Player());
 
-        var playerEffect = new BasicEffect(GraphicsDevice)
-        {
-            VertexColorEnabled = true,
-            Projection = Matrix.CreateOrthographicOffCenter
-            (
-                0,
-                GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height,
-                0,
-                0,
-                1
-            )
-        };
-
         var playerVertices = new List<Vector2>
         {
             new Vector2(50, 0),
@@ -89,10 +73,11 @@ public class Game1 : Game
 
         player.Attach(new Fighter
         {
-            Position = new Vector2(100, 100),
+            Position = new Vector2(0, 0),
             Speed = 100,
             Damage = 10,
             Health = 100,
+            Color = Color.Blue,
             Polygon = new Polygon(playerVertices)
         });
 

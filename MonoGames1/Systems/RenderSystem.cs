@@ -28,8 +28,10 @@ namespace MonoGames1.Systems
             foreach (var entityId in ActiveEntities)
             {
                 Fighter fighter = _fighterMapper.Get(entityId);
+                _spriteBatch.Begin();
 
-                _spriteBatch.DrawPolygon(fighter.Position, fighter.Polygon, fighter.Color);
+                _spriteBatch.DrawPolygon(fighter.Position, fighter.Polygon, fighter.Color, 5);
+                _spriteBatch.End();
             }
         }
     }
