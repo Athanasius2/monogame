@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
+using MonoGames1.Spawners;
+using MonoGames1.Systems;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +16,9 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
 
     private World _world;
+    private Entity _player;
+
+    private EnemySpawner _enemySpawner;
 
     public Game1()
     {
@@ -25,22 +30,56 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        PlayerSystem playerSystem = new();
+        EnemySystem enemySystem = new();
+        RenderSystem renderSystem = new(_spriteBatch);
+
+        playerSystem.PlayerMove += enemySystem.OnPlayerMove;
+        
+        Console.WriteLine("Building World...");
+        _world = new WorldBuilder()
+            .AddSystem(playerSystem)
+            .AddSystem(enemySystem)
+            .AddSystem(renderSystem)
+            .Build();
+
+        _player = _world.CreateEntity();
+        _player.Attach(new PlayerComponent());
+
+        var playerVertices = new List<Vector2>
+        {
+            new Vector2(0, 0),
+            new Vector2(32, 0),
+            new Vector2(0, 32),
+            new Vector2(32, 32),
+        };
+
+        _player.Attach(new FighterComponent
+        {
+            Position = new Vector2(0, 0),
+            Speed = 100,
+            Damage = 10,
+            Health = 100,
+            Color = Color.Blue,
+            Polygon = new Polygon(playerVertices)
+        });
+
+        _enemySpawner =
+            new EnemySpawner(_world, 4,
+                GraphicsDevice.PresentationParameters.BackBufferWidth,
+                GraphicsDevice.PresentationParameters.BackBufferHeight
+            );
+
+        enemySystem.EnemyDeath += _enemySpawner.OnEnemyDeath;
 
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        Console.WriteLine("Building World...");
-        _world = new WorldBuilder()
-            .AddSystem(new Systems.PlayerSystem())
-            .AddSystem(new Systems.RenderSystem(_spriteBatch))
-            .Build();
-
-        CreatePlayer();
+        base.LoadContent();
     }
 
     protected override void Update(GameTime gameTime)
@@ -58,29 +97,4 @@ public class Game1 : Game
         base.Draw(gameTime);
     }
 
-    private void CreatePlayer()
-    {
-
-        var player = _world.CreateEntity();
-        player.Attach(new Player());
-
-        var playerVertices = new List<Vector2>
-        {
-            new Vector2(50, 0),
-            new Vector2(0, 100),
-            new Vector2(100, 100)
-        };
-
-        player.Attach(new Fighter
-        {
-            Position = new Vector2(0, 0),
-            Speed = 100,
-            Damage = 10,
-            Health = 100,
-            Color = Color.Blue,
-            Polygon = new Polygon(playerVertices)
-        });
-
-
-    }
 }

@@ -10,24 +10,24 @@ namespace MonoGames1.Systems
 {
     public class RenderSystem : EntityDrawSystem
     {
-        private ComponentMapper<Fighter> _fighterMapper;
+        private ComponentMapper<FighterComponent> _fighterMapper;
         private SpriteBatch _spriteBatch;
 
-        public RenderSystem(SpriteBatch spriteBatch) : base(Aspect.All(typeof(Fighter)))
+        public RenderSystem(SpriteBatch spriteBatch) : base(Aspect.All(typeof(FighterComponent)))
         {
             _spriteBatch = spriteBatch;
         }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            _fighterMapper = mapperService.GetMapper<Fighter>();
+            _fighterMapper = mapperService.GetMapper<FighterComponent>();
         }
 
         public override void Draw(GameTime gameTime)
         {
             foreach (var entityId in ActiveEntities)
             {
-                Fighter fighter = _fighterMapper.Get(entityId);
+                FighterComponent fighter = _fighterMapper.Get(entityId);
                 _spriteBatch.Begin();
 
                 _spriteBatch.DrawPolygon(fighter.Position, fighter.Polygon, fighter.Color, 5);

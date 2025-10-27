@@ -4,7 +4,7 @@ using MonoGame.Extended.Shapes;
 
 namespace MonoGames1.Components
 {
-    public class Fighter
+    public class FighterComponent
     {
         public Vector2 Position;
         public int Speed;
