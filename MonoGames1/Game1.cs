@@ -13,13 +13,9 @@ namespace MonoGames1;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-
-    private World _world;
-    private Entity _player;
-
-    private EnemySpawner _enemySpawner;
+    private GraphicsDeviceManager _graphics = default!;
+    private SpriteBatch _spriteBatch = default!;
+    private World _world = default!;
 
     public Game1()
     {
@@ -33,10 +29,18 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+        SizeF worldSize = new SizeF(
+            GraphicsDevice.PresentationParameters.BackBufferWidth,
+            GraphicsDevice.PresentationParameters.BackBufferHeight
+        );
+
+        int startingEnemies = 4;
+
         // Initializing systems
-        PlayerSystem playerSystem = new();
+        PlayerSystem playerSystem = new(worldSize);
         EnemySystem enemySystem = new();
         RenderSystem renderSystem = new(_spriteBatch);
+        EnemySpawner enemySpawner =  new(startingEnemies, worldSize);
 
         // When the player moves, send player coordinates to EnemySystem
         playerSystem.PlayerMove += enemySystem.OnPlayerMove;
@@ -45,47 +49,9 @@ public class Game1 : Game
         _world = new WorldBuilder()
             .AddSystem(playerSystem)
             .AddSystem(enemySystem)
+            .AddSystem(enemySpawner)
             .AddSystem(renderSystem)
             .Build();
-
-        _player = _world.CreateEntity();
-        _player.Attach(new PlayerComponent());
-
-        List<Vector2> playerVertices = new()
-        {
-            new Vector2(0, 0),
-            new Vector2(32, 0),
-            new Vector2(32, 32),
-            new Vector2(0, 32),
-        };
-
-        SizeF playerSize = new SizeF(32, 32);
-
-        Vector2 playerPosition = new()
-        {
-            X = (GraphicsDevice.PresentationParameters.BackBufferWidth - playerSize.Width) / 2,
-            Y = (GraphicsDevice.PresentationParameters.BackBufferHeight - playerSize.Height) / 2
-        };
-
-        _player.Attach(new FighterComponent
-        {
-            Speed = 200,
-            Damage = 10,
-            Health = 100,
-            Color = Color.Blue,
-            Polygon = new Polygon(playerVertices)
-        });
-
-        _player.Attach(new BodyComponent(new RectangleF(playerPosition, playerSize)));
-
-        _enemySpawner =
-            new EnemySpawner(_world, 4,
-                GraphicsDevice.PresentationParameters.BackBufferWidth,
-                GraphicsDevice.PresentationParameters.BackBufferHeight
-            );
-
-        // Notify EnemySpawner when an enemy dies
-        enemySystem.EnemyDeath += _enemySpawner.OnEnemyDeath;
 
         base.Initialize();
     }
@@ -98,7 +64,6 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         _world.Update(gameTime);
-        _enemySpawner.Update();
         base.Update(gameTime);
     }
 
@@ -110,5 +75,4 @@ public class Game1 : Game
 
         base.Draw(gameTime);
     }
-
 }

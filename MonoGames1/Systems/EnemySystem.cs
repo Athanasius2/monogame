@@ -12,7 +12,6 @@ namespace MonoGames1.Systems
 {
     public class EnemySystem : EntityProcessingSystem
     {
-        public event EventHandler<PositionEventArgs> EnemyDeath = default!;
         public event EventHandler<DamageEventArgs> DamangePlayer = default!;
 
         private ComponentMapper<FighterComponent> _fighterMapper = default!;
@@ -51,7 +50,6 @@ namespace MonoGames1.Systems
                     if (other.Bounds.Position == _playerPosition)
                     {
                         OnDamagePlayer(new DamageEventArgs() { Damage = fighter.Damage });
-                        OnEnemyDeath(new PositionEventArgs() { Position = body.Position });
                         DestroyEntity(entityId);
 
                     }
@@ -62,11 +60,6 @@ namespace MonoGames1.Systems
         public void OnPlayerMove(object? sender, PositionEventArgs e)
         {
             _playerPosition = e.Position;
-        }
-
-        protected virtual void OnEnemyDeath(PositionEventArgs e)
-        {
-            EnemyDeath?.Invoke(this, e);
         }
 
         protected virtual void OnDamagePlayer(DamageEventArgs e)

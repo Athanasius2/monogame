@@ -1,60 +1,51 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.ECS;
+using MonoGame.Extended.ECS.Systems;
 using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
-using MonoGames1.EventArgs;
 using System;
 using System.Collections.Generic;
 
 namespace MonoGames1.Spawners;
-public class EnemySpawner
+public class EnemySpawner : EntityUpdateSystem
 {
-    private World _world;
-
     private int _maxEnemies;
     private int _enemyCount;
 
-    private int _worldWidth;
-    private int _worldHeight;
+    private SizeF _worldSize;
 
-    public EnemySpawner(World world, int initMaxEnemies, int worldWidth, int worldHeight)
+    public EnemySpawner(int initMaxEnemies, SizeF worldSize) :
+        base(Aspect.All(typeof(FighterComponent), typeof(BodyComponent)).Exclude(typeof(PlayerComponent)))
     {
-        _world = world;
         _maxEnemies = initMaxEnemies;
-
-        _worldWidth = worldWidth;
-        _worldHeight = worldHeight;
+        _worldSize = worldSize;
     }
 
-    /// <summary>
-    /// Event handler for when an enemy dies
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    public void OnEnemyDeath(object? sender, PositionEventArgs e)
-    {
-        _enemyCount--;
-    }
+    public override void Initialize(IComponentMapperService mapperService) { }
 
-    public void Update()
+    public override void Update(GameTime gameTime)
     {
-        if (_enemyCount == 0)
+        if (ActiveEntities.Count == 0)
         {
-            _enemyCount = ++_maxEnemies;
-            for (int i = 0; i < _maxEnemies; i++)
-            {
-                CreateEnemy();
-            }
+            CreateEnemies(++_maxEnemies);
+        }
+    }
+
+    private void CreateEnemies(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            CreateEnemy();
         }
     }
 
     private void CreateEnemy()
     {
-        Entity enemy = _world.CreateEntity();
+        Entity enemy = CreateEntity();
 
         Random r = new();
-        Vector2 enemyPosition = new(r.Next(0, _worldWidth), r.Next(0, _worldHeight));
+        Vector2 enemyPosition = new(r.Next(0,(int)_worldSize.Width), r.Next(0, (int) _worldSize.Height));
 
         List<Vector2> enemyVertices = new()
         {

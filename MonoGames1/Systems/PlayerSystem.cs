@@ -1,10 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
+using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
 using MonoGames1.EventArgs;
 using System;
+using System.Collections.Generic;
 
 namespace MonoGames1.Systems
 {
@@ -15,12 +18,18 @@ namespace MonoGames1.Systems
         private ComponentMapper<FighterComponent> _fighterMapper = default!;
         private ComponentMapper<BodyComponent> _bodyMapper = default!;
 
-        public PlayerSystem() : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent), typeof(BodyComponent))) { }
+        private SizeF _worldSize;
+
+        public PlayerSystem(SizeF worldSize) : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent), typeof(BodyComponent))) 
+        {
+             _worldSize = worldSize;
+        }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
             _fighterMapper = mapperService.GetMapper<FighterComponent>();
             _bodyMapper = mapperService.GetMapper<BodyComponent>();
+            CreatePlayer();
         }
 
         public override void Process(GameTime gameTime, int entityId)
@@ -58,6 +67,40 @@ namespace MonoGames1.Systems
         protected virtual void OnPlayerMove(PositionEventArgs e)
         {
             PlayerMove?.Invoke(this, e);
+        }
+
+        private void CreatePlayer()
+        {
+            Entity _player = CreateEntity();
+            _player.Attach(new PlayerComponent());
+
+            List<Vector2> playerVertices = new()
+            {
+                new Vector2(0, 0),
+                new Vector2(32, 0),
+                new Vector2(32, 32),
+                new Vector2(0, 32),
+            };
+
+            SizeF playerSize = new SizeF(32, 32);
+
+            Vector2 playerPosition = new()
+            {
+                X = (_worldSize.Width - playerSize.Width) / 2,
+                Y = (_worldSize.Height - playerSize.Height) / 2
+            };
+
+            _player.Attach(new FighterComponent
+            {
+                Speed = 200,
+                Damage = 10,
+                Health = 100,
+                Color = Color.Blue,
+                Polygon = new Polygon(playerVertices)
+            });
+
+            _player.Attach(new BodyComponent(new RectangleF(playerPosition, playerSize)));
+
         }
     }
 }
