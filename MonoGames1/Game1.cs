@@ -1,13 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
-using MonoGame.Extended.Shapes;
-using MonoGames1.Components;
 using MonoGames1.Spawners;
 using MonoGames1.Systems;
 using System;
-using System.Collections.Generic;
 
 namespace MonoGames1;
 
@@ -16,10 +14,17 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics = default!;
     private SpriteBatch _spriteBatch = default!;
     private World _world = default!;
+    private CollisionComponent _collisionComponent;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _collisionComponent = new CollisionComponent(new RectangleF(
+            0,
+            0,
+            GraphicsDevice.PresentationParameters.BackBufferWidth,
+            GraphicsDevice.PresentationParameters.BackBufferHeight
+        ));
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 

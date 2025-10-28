@@ -45,14 +45,11 @@ namespace MonoGames1.Systems
             // process collisions for enemy
             while(body.Body.Others.TryDequeue(out ICollisionActor? result))
             {
-                if (result is Body other)
+                if (result is Body other && other.Bounds.Position == _playerPosition)
                 {
-                    if (other.Bounds.Position == _playerPosition)
-                    {
-                        OnDamagePlayer(new DamageEventArgs() { Damage = fighter.Damage });
-                        DestroyEntity(entityId);
+                    OnDamagePlayer(new DamageEventArgs() { Damage = fighter.Damage });
+                    DestroyEntity(entityId);
 
-                    }
                 }
             }
         }

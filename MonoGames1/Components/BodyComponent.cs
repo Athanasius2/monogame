@@ -1,11 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGames1.Objects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MonoGames1.Components
 {
