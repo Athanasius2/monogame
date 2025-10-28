@@ -6,7 +6,6 @@ namespace MonoGames1.Components
 {
     public class FighterComponent
     {
-        public Vector2 Position;
         public int Speed;
         public int Damage;
         public int Health;

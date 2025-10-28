@@ -10,40 +10,49 @@ namespace MonoGames1.Systems
 {
     internal class PlayerSystem : EntityProcessingSystem
     {
-        public event EventHandler<PositionEventArgs> PlayerMove;
+        public event EventHandler<PositionEventArgs> PlayerMove = default!;
 
-        private ComponentMapper<FighterComponent> _fighterMapper;
+        private ComponentMapper<FighterComponent> _fighterMapper = default!;
+        private ComponentMapper<BodyComponent> _bodyMapper = default!;
 
-        public PlayerSystem() : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent))) { }
+        public PlayerSystem() : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent), typeof(BodyComponent))) { }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
             _fighterMapper = mapperService.GetMapper<FighterComponent>();
+            _bodyMapper = mapperService.GetMapper<BodyComponent>();
         }
 
         public override void Process(GameTime gameTime, int entityId)
         {
             FighterComponent fighter = _fighterMapper.Get(entityId);
+            BodyComponent body = _bodyMapper.Get(entityId);
 
-            Vector2 newPosition = fighter.Position;
+            Vector2 direction = Vector2.Zero;
 
-            if(Keyboard.GetState().IsKeyDown(Keys.W))
-                newPosition.Y -= fighter.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+                direction.Y = -1;
 
             if (Keyboard.GetState().IsKeyDown(Keys.S))
-                newPosition.Y += fighter.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                direction.Y = 1;
 
             if (Keyboard.GetState().IsKeyDown(Keys.A))
-                newPosition.X -= fighter.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                direction.X = -1;
 
             if (Keyboard.GetState().IsKeyDown(Keys.D))
-                newPosition.X += fighter.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                direction.X = 1;
 
-            if(fighter.Position != newPosition)
+
+            if(direction != Vector2.Zero)
             {
-                fighter.Position = newPosition;
-                OnPlayerMove(new PositionEventArgs { Position = newPosition });
+                direction.Normalize();
+
+                Vector2 delta;
+                delta.X = (float)(direction.X * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
+                delta.Y = (float)(direction.Y * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
+                body.Position += delta;
             }
+            OnPlayerMove(new PositionEventArgs { Position = body.Position });
         }
 
         protected virtual void OnPlayerMove(PositionEventArgs e)

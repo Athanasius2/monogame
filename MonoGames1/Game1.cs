@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
@@ -32,10 +33,12 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+        // Initializing systems
         PlayerSystem playerSystem = new();
         EnemySystem enemySystem = new();
         RenderSystem renderSystem = new(_spriteBatch);
 
+        // When the player moves, send player coordinates to EnemySystem
         playerSystem.PlayerMove += enemySystem.OnPlayerMove;
         
         Console.WriteLine("Building World...");
@@ -48,23 +51,32 @@ public class Game1 : Game
         _player = _world.CreateEntity();
         _player.Attach(new PlayerComponent());
 
-        var playerVertices = new List<Vector2>
+        List<Vector2> playerVertices = new()
         {
             new Vector2(0, 0),
             new Vector2(32, 0),
-            new Vector2(0, 32),
             new Vector2(32, 32),
+            new Vector2(0, 32),
+        };
+
+        SizeF playerSize = new SizeF(32, 32);
+
+        Vector2 playerPosition = new()
+        {
+            X = (GraphicsDevice.PresentationParameters.BackBufferWidth - playerSize.Width) / 2,
+            Y = (GraphicsDevice.PresentationParameters.BackBufferHeight - playerSize.Height) / 2
         };
 
         _player.Attach(new FighterComponent
         {
-            Position = new Vector2(0, 0),
-            Speed = 100,
+            Speed = 200,
             Damage = 10,
             Health = 100,
             Color = Color.Blue,
             Polygon = new Polygon(playerVertices)
         });
+
+        _player.Attach(new BodyComponent(new RectangleF(playerPosition, playerSize)));
 
         _enemySpawner =
             new EnemySpawner(_world, 4,
@@ -72,6 +84,7 @@ public class Game1 : Game
                 GraphicsDevice.PresentationParameters.BackBufferHeight
             );
 
+        // Notify EnemySpawner when an enemy dies
         enemySystem.EnemyDeath += _enemySpawner.OnEnemyDeath;
 
         base.Initialize();
@@ -85,6 +98,7 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         _world.Update(gameTime);
+        _enemySpawner.Update();
         base.Update(gameTime);
     }
 

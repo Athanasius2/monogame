@@ -10,7 +10,8 @@ namespace MonoGames1.Systems
 {
     public class RenderSystem : EntityDrawSystem
     {
-        private ComponentMapper<FighterComponent> _fighterMapper;
+        private ComponentMapper<FighterComponent> _fighterMapper = default!;
+        private ComponentMapper<BodyComponent> _bodyComponent = default!;
         private SpriteBatch _spriteBatch;
 
         public RenderSystem(SpriteBatch spriteBatch) : base(Aspect.All(typeof(FighterComponent)))
@@ -21,6 +22,7 @@ namespace MonoGames1.Systems
         public override void Initialize(IComponentMapperService mapperService)
         {
             _fighterMapper = mapperService.GetMapper<FighterComponent>();
+            _bodyComponent = mapperService.GetMapper<BodyComponent>();
         }
 
         public override void Draw(GameTime gameTime)
@@ -28,9 +30,11 @@ namespace MonoGames1.Systems
             foreach (var entityId in ActiveEntities)
             {
                 FighterComponent fighter = _fighterMapper.Get(entityId);
+                BodyComponent body = _bodyComponent.Get(entityId);
+
                 _spriteBatch.Begin();
 
-                _spriteBatch.DrawPolygon(fighter.Position, fighter.Polygon, fighter.Color, 5);
+                _spriteBatch.DrawPolygon(body.Position, fighter.Polygon, fighter.Color, 5);
                 _spriteBatch.End();
             }
         }
