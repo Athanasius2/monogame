@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MonoGames1.Events.Args
 {
-    public class CreateBodyArgs
+    public class CreateBodyArgs : EventArgs
     {
         public ICollisionActor Body;
 

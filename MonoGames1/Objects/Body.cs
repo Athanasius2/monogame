@@ -1,5 +1,6 @@
 ﻿using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
+using MonoGames1.Components;
 using System.Collections.Generic;
 
 namespace MonoGames1.Objects
@@ -15,7 +16,7 @@ namespace MonoGames1.Objects
             Bounds = bounds;
         }
 
-        public void OnCollision(CollisionEventArgs collisionInfo)
+        public virtual void OnCollision(CollisionEventArgs collisionInfo)
         {
             Others.Enqueue(collisionInfo.Other);
         }

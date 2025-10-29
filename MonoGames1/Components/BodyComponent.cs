@@ -14,9 +14,9 @@ namespace MonoGames1.Components
             set => Body.Bounds.Position = value;
         }
 
-        public BodyComponent(RectangleF bounds)
+        public BodyComponent(Body body)
         {
-            Body = new Body(bounds);
+            Body = body;
         }
     }
 }

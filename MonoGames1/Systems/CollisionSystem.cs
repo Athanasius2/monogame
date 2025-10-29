@@ -23,7 +23,6 @@ namespace MonoGames1.Systems
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            throw new NotImplementedException();
         }
 
         public override void Update(GameTime gameTime)

@@ -7,15 +7,15 @@ using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
 using MonoGames1.Events;
 using MonoGames1.Events.Args;
-using System;
+using MonoGames1.Objects;
 using System.Collections.Generic;
 
 namespace MonoGames1.Systems
 {
-    internal class PlayerSystem : EntityProcessingSystem
+    internal class PlayerSystem : EntityUpdateSystem
     {
-        private ComponentMapper<FighterComponent> _fighterMapper = default!;
-        private ComponentMapper<BodyComponent> _bodyMapper = default!;
+        private FighterComponent _fighterComponent;
+        private BodyComponent _bodyComponent;
 
         private EventBus _eventBus;
         private SizeF _worldSize;
@@ -28,16 +28,11 @@ namespace MonoGames1.Systems
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            _fighterMapper = mapperService.GetMapper<FighterComponent>();
-            _bodyMapper = mapperService.GetMapper<BodyComponent>();
             CreatePlayer();
         }
 
-        public override void Process(GameTime gameTime, int entityId)
+        public override void Update(GameTime gameTime)
         {
-            FighterComponent fighter = _fighterMapper.Get(entityId);
-            BodyComponent body = _bodyMapper.Get(entityId);
-
             Vector2 direction = Vector2.Zero;
 
             if (Keyboard.GetState().IsKeyDown(Keys.W))
@@ -58,11 +53,16 @@ namespace MonoGames1.Systems
                 direction.Normalize();
 
                 Vector2 delta;
-                delta.X = (float)(direction.X * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
-                delta.Y = (float)(direction.Y * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
-                body.Position += delta;
+                delta.X = (float)(direction.X * _fighterComponent.Speed * gameTime.ElapsedGameTime.TotalSeconds);
+                delta.Y = (float)(direction.Y * _fighterComponent.Speed * gameTime.ElapsedGameTime.TotalSeconds);
+                _bodyComponent.Position += delta;
+                _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });
             }
-            _eventBus.Push(new PositionEventArgs { Position = body.Position });
+        }
+
+        public void OnDamage(DamageEventArgs damageEventArgs)
+        {
+            _fighterComponent.Health -= damageEventArgs.Damage;
         }
 
         private void CreatePlayer()
@@ -86,17 +86,24 @@ namespace MonoGames1.Systems
                 Y = (_worldSize.Height - playerSize.Height) / 2
             };
 
-            _player.Attach(new FighterComponent
+            _fighterComponent = new FighterComponent
             {
                 Speed = 200,
                 Damage = 10,
                 Health = 100,
+                MaxHealth = 100,
                 Color = Color.Blue,
                 Polygon = new Polygon(playerVertices)
-            });
+            };
 
-            _player.Attach(new BodyComponent(new RectangleF(playerPosition, playerSize)));
+            _player.Attach(_fighterComponent);
 
+            _bodyComponent = new BodyComponent(new PlayerBody(new RectangleF(playerPosition, playerSize)));
+            _player.Attach(_bodyComponent);
+
+            _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });
+            _eventBus.Push(new CreateBodyArgs(_bodyComponent.Body));
         }
+
     }
 }

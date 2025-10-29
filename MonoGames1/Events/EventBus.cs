@@ -6,7 +6,7 @@ namespace MonoGames1.Events
 {
     public class EventBus
     {
-        private Dictionary<Type, List<Action<EventArgs>>> _handlers = new();
+        private Dictionary<Type, List<Delegate>> _handlers = new();
         private Queue<EventArgs> _events = new();
 
         public EventBus() { }
@@ -16,9 +16,9 @@ namespace MonoGames1.Events
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="handler"></param>
-        public void Subscribe<T>(Action<T> handler) where T : EventArgs
+        public void Subscribe<TEventArgs>(Action<TEventArgs> handler) where TEventArgs : EventArgs
         {
-            Type type = typeof(T);
+            Type type = typeof(TEventArgs);
             if (!_handlers.ContainsKey(type)) _handlers[type] = new();
             _handlers[type].Add(handler);
         }
@@ -28,24 +28,22 @@ namespace MonoGames1.Events
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="eventData"></param>
-        public void Push<T>(T eventData)
+        public void Push<TEventArgs>(TEventArgs eventArgs) where TEventArgs : EventArgs
         {
+            _events.Enqueue(eventArgs);
         }
 
         /// <summary>
         /// Run all event handlers for all enqueued event data
         /// </summary>
-        public void Dispatch()
+        public void DispatchAll()
         {
             while(_events.TryDequeue(out EventArgs? eventArgs))
             {
                 Type type = eventArgs.GetType();
                 if(_handlers.TryGetValue(type, out List<Delegate>? handlers))
                 {
-                    handlers
-                        .Cast<Action<T>>()
-                        .ToList()
-                        .ForEach(h => h(eventArgs));
+                    handlers.ForEach(h => h.DynamicInvoke(eventArgs));
                 }
             }
         }

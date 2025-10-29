@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
@@ -48,11 +47,10 @@ namespace MonoGames1.Systems
             // process collisions for enemy
             while(body.Body.Others.TryDequeue(out ICollisionActor? result))
             {
-                if (result is Body other && other.Bounds.Position == _playerPosition)
+                if (result is PlayerBody other)
                 {
                     _eventBus.Push(new DamageEventArgs() { Damage = fighter.Damage });
                     DestroyEntity(entityId);
-
                 }
             }
         }

@@ -8,6 +8,7 @@ namespace MonoGames1.Components
     {
         public int Speed;
         public int Damage;
+        public int MaxHealth;
         public int Health;
 
         public Polygon Polygon;

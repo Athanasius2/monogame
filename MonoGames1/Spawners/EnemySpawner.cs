@@ -5,6 +5,8 @@ using MonoGame.Extended.ECS.Systems;
 using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
 using MonoGames1.Events;
+using MonoGames1.Events.Args;
+using MonoGames1.Objects;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +26,10 @@ public class EnemySpawner : EntityUpdateSystem
         _worldSize = worldSize;
     }
 
-    public override void Initialize(IComponentMapperService mapperService) { }
+    public override void Initialize(IComponentMapperService mapperService) 
+    { 
+        CreateEnemies(_maxEnemies);
+    }
 
     public override void Update(GameTime gameTime)
     {
@@ -68,6 +73,9 @@ public class EnemySpawner : EntityUpdateSystem
             Polygon = new Polygon(enemyVertices)
         });
 
-        enemy.Attach(new BodyComponent(new MonoGame.Extended.RectangleF(enemyPosition, enemySize)));
+        BodyComponent body = new BodyComponent(new Body(new RectangleF(enemyPosition, enemySize)));
+
+        enemy.Attach(body);
+        _eventBus.Push(new CreateBodyArgs(body.Body));
     }
 }

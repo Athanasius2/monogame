@@ -30,11 +30,7 @@ namespace MonoGames1.Systems
             {
                 FighterComponent fighter = _fighterMapper.Get(entityId);
                 BodyComponent body = _bodyComponent.Get(entityId);
-
-                _spriteBatch.Begin();
-
                 _spriteBatch.DrawPolygon(body.Position, fighter.Polygon, fighter.Color, 5);
-                _spriteBatch.End();
             }
         }
     }

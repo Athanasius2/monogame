@@ -7,7 +7,6 @@ using MonoGames1.Events;
 using MonoGames1.Events.Args;
 using MonoGames1.Spawners;
 using MonoGames1.Systems;
-using System;
 
 namespace MonoGames1;
 
@@ -24,7 +23,6 @@ public class Game1 : Game
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-
     }
 
     protected override void Initialize()
@@ -49,18 +47,28 @@ public class Game1 : Game
         PlayerSystem playerSystem = new(_eventBus, worldSize);
         EnemySystem enemySystem = new(_eventBus);
         RenderSystem renderSystem = new(_spriteBatch);
+        HealthBarSystem healthBarSystem = new(_spriteBatch);
         EnemySpawner enemySpawner =  new(_eventBus, startingEnemies, worldSize);
+        CollisionSystem collisionSystem = new(_eventBus, new RectangleF(Vector2.Zero, worldSize));
+
 
         // Register event handlers
         _eventBus.Subscribe<PositionEventArgs>(enemySystem.OnPlayerMove);
+        _eventBus.Subscribe<CreateBodyArgs>(collisionSystem.OnCreateBody);
+        _eventBus.Subscribe<DamageEventArgs>(playerSystem.OnDamage);
         
-        Console.WriteLine("Building World...");
+        // Initialize systems
         _world = new WorldBuilder()
             .AddSystem(playerSystem)
             .AddSystem(enemySystem)
             .AddSystem(enemySpawner)
+            .AddSystem(collisionSystem)
             .AddSystem(renderSystem)
+            .AddSystem(healthBarSystem)
             .Build();
+
+        // Dispatch any events raised durring the entity systems initialization
+        _eventBus.DispatchAll();
 
         base.Initialize();
     }
@@ -73,6 +81,7 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         _world.Update(gameTime);
+        _eventBus.DispatchAll();
         base.Update(gameTime);
     }
 
@@ -80,7 +89,9 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
+        _spriteBatch.Begin();
         _world.Draw(gameTime);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
