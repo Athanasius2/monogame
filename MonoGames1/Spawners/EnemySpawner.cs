@@ -66,14 +66,19 @@ public class EnemySpawner : EntityUpdateSystem
 
         enemy.Attach(new FighterComponent
         {
-            Speed = 100,
             Damage = 10,
             Health = 100,
             Color = Color.Red,
             Polygon = new Polygon(enemyVertices)
         });
 
-        BodyComponent body = new BodyComponent(new Body(new RectangleF(enemyPosition, enemySize)));
+        BodyComponent body = new BodyComponent(
+            new Body(
+                new RectangleF(enemyPosition, enemySize), 
+                Vector2.Zero, 
+                100
+            )
+        );
 
         enemy.Attach(body);
         _eventBus.Push(new CreateBodyArgs(body.Body));

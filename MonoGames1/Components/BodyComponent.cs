@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 using MonoGames1.Objects;
 
 namespace MonoGames1.Components
@@ -12,6 +11,18 @@ namespace MonoGames1.Components
         {
             get => Body.Bounds.Position;
             set => Body.Bounds.Position = value;
+        }
+
+        public Vector2 Direction
+        {
+            get => Body.Direction;
+            set => Body.Direction = value;
+        }
+
+        public int Speed
+        {
+            get => Body.Speed;
+            set => Body.Speed = value;
         }
 
         public BodyComponent(Body body)

@@ -50,12 +50,7 @@ namespace MonoGames1.Systems
 
             if(direction != Vector2.Zero)
             {
-                direction.Normalize();
-
-                Vector2 delta;
-                delta.X = (float)(direction.X * _fighterComponent.Speed * gameTime.ElapsedGameTime.TotalSeconds);
-                delta.Y = (float)(direction.Y * _fighterComponent.Speed * gameTime.ElapsedGameTime.TotalSeconds);
-                _bodyComponent.Position += delta;
+                _bodyComponent.Position += Utils.GetPositionChange(direction, _bodyComponent.Speed, gameTime);
                 _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });
             }
         }
@@ -88,7 +83,6 @@ namespace MonoGames1.Systems
 
             _fighterComponent = new FighterComponent
             {
-                Speed = 200,
                 Damage = 10,
                 Health = 100,
                 MaxHealth = 100,
@@ -98,7 +92,12 @@ namespace MonoGames1.Systems
 
             _player.Attach(_fighterComponent);
 
-            _bodyComponent = new BodyComponent(new PlayerBody(new RectangleF(playerPosition, playerSize)));
+            _bodyComponent = new BodyComponent(
+                new PlayerBody(
+                    new RectangleF(playerPosition, playerSize),
+                    Vector2.Zero,
+                    200
+            ));
             _player.Attach(_bodyComponent);
 
             _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });

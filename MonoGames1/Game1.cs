@@ -51,7 +51,6 @@ public class Game1 : Game
         EnemySpawner enemySpawner =  new(_eventBus, startingEnemies, worldSize);
         CollisionSystem collisionSystem = new(_eventBus, new RectangleF(Vector2.Zero, worldSize));
 
-
         // Register event handlers
         _eventBus.Subscribe<PositionEventArgs>(enemySystem.OnPlayerMove);
         _eventBus.Subscribe<CreateBodyArgs>(collisionSystem.OnCreateBody);

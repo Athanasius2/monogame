@@ -6,7 +6,6 @@ using MonoGames1.Components;
 using MonoGames1.Events;
 using MonoGames1.Events.Args;
 using MonoGames1.Objects;
-using System;
 
 namespace MonoGames1.Systems
 {
@@ -33,16 +32,9 @@ namespace MonoGames1.Systems
             FighterComponent fighter = _fighterMapper.Get(entityId);
             BodyComponent body = _bodyMapper.Get(entityId);
 
-            // process movement for enemy
-            float angle = MathF.Atan2(_playerPosition.X - body.Position.X, 
-                _playerPosition.Y - body.Position.Y);
+            Vector2 direction = _playerPosition - body.Position;
 
-            Vector2 delta;
-
-            delta.X = (float)(MathF.Sin(angle) * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
-            delta.Y = (float)(MathF.Cos(angle) * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
-
-            body.Position += delta;
+            body.Position += Utils.GetPositionChange(direction, body.Speed, gameTime);
 
             // process collisions for enemy
             while(body.Body.Others.TryDequeue(out ICollisionActor? result))
