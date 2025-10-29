@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
+using MonoGames1.Events;
+using MonoGames1.Events.Args;
 using MonoGames1.Spawners;
 using MonoGames1.Systems;
 using System;
@@ -15,16 +17,11 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch = default!;
     private World _world = default!;
     private CollisionComponent _collisionComponent;
+    private EventBus _eventBus = new EventBus();
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
-        _collisionComponent = new CollisionComponent(new RectangleF(
-            0,
-            0,
-            GraphicsDevice.PresentationParameters.BackBufferWidth,
-            GraphicsDevice.PresentationParameters.BackBufferHeight
-        ));
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
@@ -32,6 +29,13 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
+        _collisionComponent = new CollisionComponent(new RectangleF(
+            0,
+            0,
+            GraphicsDevice.PresentationParameters.BackBufferWidth,
+            GraphicsDevice.PresentationParameters.BackBufferHeight
+        ));
+
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         SizeF worldSize = new SizeF(
@@ -42,13 +46,13 @@ public class Game1 : Game
         int startingEnemies = 4;
 
         // Initializing systems
-        PlayerSystem playerSystem = new(worldSize);
-        EnemySystem enemySystem = new();
+        PlayerSystem playerSystem = new(_eventBus, worldSize);
+        EnemySystem enemySystem = new(_eventBus);
         RenderSystem renderSystem = new(_spriteBatch);
-        EnemySpawner enemySpawner =  new(startingEnemies, worldSize);
+        EnemySpawner enemySpawner =  new(_eventBus, startingEnemies, worldSize);
 
-        // When the player moves, send player coordinates to EnemySystem
-        playerSystem.PlayerMove += enemySystem.OnPlayerMove;
+        // Register event handlers
+        _eventBus.Subscribe<PositionEventArgs>(enemySystem.OnPlayerMove);
         
         Console.WriteLine("Building World...");
         _world = new WorldBuilder()

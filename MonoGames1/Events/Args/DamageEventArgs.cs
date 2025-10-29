@@ -1,4 +1,4 @@
-﻿namespace MonoGames1.EventArgs
+﻿namespace MonoGames1.Events.Args
 {
     public class DamageEventArgs : System.EventArgs
     {

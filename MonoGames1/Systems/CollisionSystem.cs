@@ -4,7 +4,8 @@ using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 using MonoGames1.Components;
-using MonoGames1.EventArgs;
+using MonoGames1.Events;
+using MonoGames1.Events.Args;
 using System;
 
 namespace MonoGames1.Systems
@@ -12,10 +13,12 @@ namespace MonoGames1.Systems
     public class CollisionSystem : EntityUpdateSystem
     {
         private CollisionComponent _collisionComponent;
+        private EventBus _eventBus;
 
-        public CollisionSystem(RectangleF worldSize) : base(Aspect.All(typeof(BodyComponent)))
+        public CollisionSystem(EventBus eventBus, RectangleF worldSize) : base(Aspect.All(typeof(BodyComponent)))
         {
             _collisionComponent = new CollisionComponent(worldSize);
+            _eventBus = eventBus;
         }
 
         public override void Initialize(IComponentMapperService mapperService)
@@ -28,7 +31,7 @@ namespace MonoGames1.Systems
             _collisionComponent.Update(gameTime);
         }
 
-        public void OnCreateBody(object? sender, CreateBodyArgs e)
+        public void OnCreateBody(CreateBodyArgs e)
         {
             _collisionComponent.Insert(e.Body);
         }

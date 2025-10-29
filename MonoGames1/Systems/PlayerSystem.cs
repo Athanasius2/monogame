@@ -5,7 +5,8 @@ using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
-using MonoGames1.EventArgs;
+using MonoGames1.Events;
+using MonoGames1.Events.Args;
 using System;
 using System.Collections.Generic;
 
@@ -13,16 +14,16 @@ namespace MonoGames1.Systems
 {
     internal class PlayerSystem : EntityProcessingSystem
     {
-        public event EventHandler<PositionEventArgs> PlayerMove = default!;
-
         private ComponentMapper<FighterComponent> _fighterMapper = default!;
         private ComponentMapper<BodyComponent> _bodyMapper = default!;
 
+        private EventBus _eventBus;
         private SizeF _worldSize;
 
-        public PlayerSystem(SizeF worldSize) : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent), typeof(BodyComponent))) 
+        public PlayerSystem(EventBus eventBus, SizeF worldSize) : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent), typeof(BodyComponent))) 
         {
-             _worldSize = worldSize;
+            _worldSize = worldSize;
+            _eventBus = eventBus;
         }
 
         public override void Initialize(IComponentMapperService mapperService)
@@ -61,12 +62,7 @@ namespace MonoGames1.Systems
                 delta.Y = (float)(direction.Y * fighter.Speed * gameTime.ElapsedGameTime.TotalSeconds);
                 body.Position += delta;
             }
-            OnPlayerMove(new PositionEventArgs { Position = body.Position });
-        }
-
-        protected virtual void OnPlayerMove(PositionEventArgs e)
-        {
-            PlayerMove?.Invoke(this, e);
+            _eventBus.Push(new PositionEventArgs { Position = body.Position });
         }
 
         private void CreatePlayer()

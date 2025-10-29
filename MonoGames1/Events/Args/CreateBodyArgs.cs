@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonoGames1.EventArgs
+namespace MonoGames1.Events.Args
 {
     public class CreateBodyArgs
     {

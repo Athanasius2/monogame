@@ -4,6 +4,7 @@ using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 using MonoGame.Extended.Shapes;
 using MonoGames1.Components;
+using MonoGames1.Events;
 using System;
 using System.Collections.Generic;
 
@@ -11,13 +12,14 @@ namespace MonoGames1.Spawners;
 public class EnemySpawner : EntityUpdateSystem
 {
     private int _maxEnemies;
-    private int _enemyCount;
 
+    private EventBus _eventBus;
     private SizeF _worldSize;
 
-    public EnemySpawner(int initMaxEnemies, SizeF worldSize) :
+    public EnemySpawner(EventBus eventBus, int initMaxEnemies, SizeF worldSize) :
         base(Aspect.All(typeof(FighterComponent), typeof(BodyComponent)).Exclude(typeof(PlayerComponent)))
     {
+        _eventBus = eventBus;
         _maxEnemies = initMaxEnemies;
         _worldSize = worldSize;
     }

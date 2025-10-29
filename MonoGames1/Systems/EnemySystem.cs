@@ -4,7 +4,8 @@ using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 using MonoGames1.Components;
-using MonoGames1.EventArgs;
+using MonoGames1.Events;
+using MonoGames1.Events.Args;
 using MonoGames1.Objects;
 using System;
 
@@ -12,14 +13,16 @@ namespace MonoGames1.Systems
 {
     public class EnemySystem : EntityProcessingSystem
     {
-        public event EventHandler<DamageEventArgs> DamangePlayer = default!;
-
+        private EventBus _eventBus = new EventBus();
         private ComponentMapper<FighterComponent> _fighterMapper = default!;
         private ComponentMapper<BodyComponent> _bodyMapper = default!;
 
         private Vector2 _playerPosition;
 
-        public EnemySystem() : base(Aspect.All(typeof(FighterComponent), typeof(BodyComponent)).Exclude(typeof(PlayerComponent))) { }
+        public EnemySystem(EventBus eventBus) : base(Aspect.All(typeof(FighterComponent), typeof(BodyComponent)).Exclude(typeof(PlayerComponent))) 
+        {
+            _eventBus = eventBus;
+        }
         public override void Initialize(IComponentMapperService mapperService)
         {
             _fighterMapper = mapperService.GetMapper<FighterComponent>();
@@ -47,21 +50,16 @@ namespace MonoGames1.Systems
             {
                 if (result is Body other && other.Bounds.Position == _playerPosition)
                 {
-                    OnDamagePlayer(new DamageEventArgs() { Damage = fighter.Damage });
+                    _eventBus.Push(new DamageEventArgs() { Damage = fighter.Damage });
                     DestroyEntity(entityId);
 
                 }
             }
         }
 
-        public void OnPlayerMove(object? sender, PositionEventArgs e)
+        public void OnPlayerMove(PositionEventArgs e)
         {
             _playerPosition = e.Position;
-        }
-
-        protected virtual void OnDamagePlayer(DamageEventArgs e)
-        {
-            DamangePlayer?.Invoke(this, e);
         }
     }
 }
