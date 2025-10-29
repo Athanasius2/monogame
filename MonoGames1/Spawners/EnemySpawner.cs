@@ -62,7 +62,7 @@ public class EnemySpawner : EntityUpdateSystem
             new Vector2(0, 32),
         };
 
-        SizeF enemySize = new SizeF(32, 32);
+        SizeF enemySize = new(32, 32);
 
         enemy.Attach(new FighterComponent
         {
@@ -72,15 +72,16 @@ public class EnemySpawner : EntityUpdateSystem
             Polygon = new Polygon(enemyVertices)
         });
 
-        BodyComponent body = new BodyComponent(
-            new Body(
-                new RectangleF(enemyPosition, enemySize), 
-                Vector2.Zero, 
+        BodyComponent body = new()
+        {
+            Body = new Body(
+                new RectangleF(enemyPosition, enemySize),
+                Vector2.Zero,
                 100
-            )
-        );
+            ),
+        };
 
         enemy.Attach(body);
-        _eventBus.Push(new CreateBodyArgs(body.Body));
+        _eventBus.Push(new CreateBodyArgs{ Body = body.Body });
     }
 }

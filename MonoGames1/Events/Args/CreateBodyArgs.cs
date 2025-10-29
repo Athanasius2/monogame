@@ -9,11 +9,6 @@ namespace MonoGames1.Events.Args
 {
     public class CreateBodyArgs : EventArgs
     {
-        public ICollisionActor Body;
-
-        public CreateBodyArgs(ICollisionActor body)
-        {
-            Body = body;
-        }
+        public ICollisionActor Body = default!;
     }
 }

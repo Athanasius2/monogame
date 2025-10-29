@@ -15,8 +15,7 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics = default!;
     private SpriteBatch _spriteBatch = default!;
     private World _world = default!;
-    private CollisionComponent _collisionComponent;
-    private EventBus _eventBus = new EventBus();
+    private readonly EventBus _eventBus = new();
 
     public Game1()
     {
@@ -27,16 +26,9 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _collisionComponent = new CollisionComponent(new RectangleF(
-            0,
-            0,
-            GraphicsDevice.PresentationParameters.BackBufferWidth,
-            GraphicsDevice.PresentationParameters.BackBufferHeight
-        ));
-
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        SizeF worldSize = new SizeF(
+        SizeF worldSize = new(
             GraphicsDevice.PresentationParameters.BackBufferWidth,
             GraphicsDevice.PresentationParameters.BackBufferHeight
         );

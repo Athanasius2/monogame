@@ -6,8 +6,8 @@ namespace MonoGames1.Events
 {
     public class EventBus
     {
-        private Dictionary<Type, List<Delegate>> _handlers = new();
-        private Queue<EventArgs> _events = new();
+        private readonly Dictionary<Type, List<Delegate>> _handlers = [];
+        private readonly Queue<EventArgs> _events = [];
 
         public EventBus() { }
 
@@ -19,7 +19,7 @@ namespace MonoGames1.Events
         public void Subscribe<TEventArgs>(Action<TEventArgs> handler) where TEventArgs : EventArgs
         {
             Type type = typeof(TEventArgs);
-            if (!_handlers.ContainsKey(type)) _handlers[type] = new();
+            if (!_handlers.ContainsKey(type)) _handlers[type] = [];
             _handlers[type].Add(handler);
         }
 

@@ -14,8 +14,8 @@ namespace MonoGames1.Systems
 {
     internal class PlayerSystem : EntityUpdateSystem
     {
-        private FighterComponent _fighterComponent;
-        private BodyComponent _bodyComponent;
+        private FighterComponent _fighterComponent = default!;
+        private BodyComponent _bodyComponent = default!;
 
         private EventBus _eventBus;
         private SizeF _worldSize;
@@ -73,7 +73,7 @@ namespace MonoGames1.Systems
                 new Vector2(0, 32),
             };
 
-            SizeF playerSize = new SizeF(32, 32);
+            SizeF playerSize = new(32, 32);
 
             Vector2 playerPosition = new()
             {
@@ -92,16 +92,19 @@ namespace MonoGames1.Systems
 
             _player.Attach(_fighterComponent);
 
-            _bodyComponent = new BodyComponent(
-                new PlayerBody(
+            _bodyComponent = new BodyComponent
+            {
+                Body = new PlayerBody(
                     new RectangleF(playerPosition, playerSize),
                     Vector2.Zero,
                     200
-            ));
+                )
+            };
+
             _player.Attach(_bodyComponent);
 
             _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });
-            _eventBus.Push(new CreateBodyArgs(_bodyComponent.Body));
+            _eventBus.Push(new CreateBodyArgs { Body = _bodyComponent.Body });
         }
 
     }

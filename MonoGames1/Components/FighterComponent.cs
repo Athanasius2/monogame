@@ -9,7 +9,7 @@ namespace MonoGames1.Components
         public int MaxHealth;
         public int Health;
 
-        public Polygon Polygon;
+        public Polygon Polygon = default!;
         public Color Color;
     }
 }

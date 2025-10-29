@@ -5,7 +5,7 @@ namespace MonoGames1.Components
 {
     public class BodyComponent
     {
-        public Body Body;
+        public Body Body = default!;
 
         public Vector2 Position
         {
@@ -23,11 +23,6 @@ namespace MonoGames1.Components
         {
             get => Body.Speed;
             set => Body.Speed = value;
-        }
-
-        public BodyComponent(Body body)
-        {
-            Body = body;
         }
     }
 }
