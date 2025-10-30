@@ -68,6 +68,11 @@ public class EnemySpawner : EntityUpdateSystem
         {
             Damage = 10,
             Health = 100,
+            MaxHealth = 100
+        });
+
+        enemy.Attach(new ShapeComponent
+        {
             Color = Color.Red,
             Polygon = new Polygon(enemyVertices)
         });

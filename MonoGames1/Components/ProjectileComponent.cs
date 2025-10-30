@@ -8,4 +8,5 @@ public class ProjectileComponent
     public int Speed;
     public int Damage;
     public float Duration;
+    public float Age;
 }

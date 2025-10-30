@@ -16,11 +16,12 @@ namespace MonoGames1.Systems
     {
         private FighterComponent _fighterComponent = default!;
         private BodyComponent _bodyComponent = default!;
+        private ShapeComponent _shapeComponent = default!;
 
         private EventBus _eventBus;
         private SizeF _worldSize;
 
-        public PlayerSystem(EventBus eventBus, SizeF worldSize) : base(Aspect.All(typeof(PlayerComponent), typeof(FighterComponent), typeof(BodyComponent))) 
+        public PlayerSystem(EventBus eventBus, SizeF worldSize) : base(Aspect.All(typeof(PlayerComponent))) 
         {
             _worldSize = worldSize;
             _eventBus = eventBus;
@@ -50,6 +51,7 @@ namespace MonoGames1.Systems
 
             if(direction != Vector2.Zero)
             {
+                _bodyComponent.Direction = direction;
                 _bodyComponent.Position += Utils.GetPositionChange(direction, _bodyComponent.Speed, gameTime);
                 _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });
             }
@@ -81,22 +83,28 @@ namespace MonoGames1.Systems
                 Y = (_worldSize.Height - playerSize.Height) / 2
             };
 
-            _fighterComponent = new FighterComponent
+            _fighterComponent = new()
             {
                 Damage = 10,
                 Health = 100,
                 MaxHealth = 100,
-                Color = Color.Blue,
-                Polygon = new Polygon(playerVertices)
             };
 
             _player.Attach(_fighterComponent);
 
-            _bodyComponent = new BodyComponent
+            _shapeComponent = new()
+            {
+                Color = Color.Blue,
+                Polygon = new Polygon(playerVertices)
+            };
+
+            _player.Attach(_shapeComponent);
+
+            _bodyComponent = new()
             {
                 Body = new PlayerBody(
                     new RectangleF(playerPosition, playerSize),
-                    Vector2.Zero,
+                    new Vector2(),
                     200
                 )
             };

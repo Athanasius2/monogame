@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
@@ -28,10 +29,17 @@ public class ProjectileSystem : EntityProcessingSystem
     public override void Process(GameTime gameTime, int entityId)
     {
         ProjectileComponent projectile = _projectileMapper.Get(entityId);
+
+        projectile.Age += gameTime.GetElapsedSeconds();
+        if (projectile.Age > projectile.Duration)
+        {
+            DestroyEntity(entityId);
+            return;
+        }
+
         BodyComponent body = _bodyMapper.Get(entityId);
-
-
         body.Position += Utils.GetPositionChange(projectile.Direction, projectile.Speed, gameTime);
+
         while(body.Body.Others.TryDequeue(out ICollisionActor? other))
         {
             if (other is not ProjectileBody)
