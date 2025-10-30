@@ -21,6 +21,13 @@ namespace MonoGames1.Systems
         private EventBus _eventBus;
         private SizeF _worldSize;
 
+        // Direction the player is facing. Init to facing the screen.
+        private Vector2 _direction = new Vector2(0, -1);
+
+        // how long after shooting before you can shoot again in seconds
+        private float _projectileDelay = 0.2f;
+        private float _projectileElapsed = 1f;
+
         public PlayerSystem(EventBus eventBus, SizeF worldSize) : base(Aspect.All(typeof(PlayerComponent))) 
         {
             _worldSize = worldSize;
@@ -34,6 +41,7 @@ namespace MonoGames1.Systems
 
         public override void Update(GameTime gameTime)
         {
+            _projectileElapsed += gameTime.GetElapsedSeconds();
             Vector2 direction = Vector2.Zero;
 
             if (Keyboard.GetState().IsKeyDown(Keys.W))
@@ -48,12 +56,18 @@ namespace MonoGames1.Systems
             if (Keyboard.GetState().IsKeyDown(Keys.D))
                 direction.X = 1;
 
-
             if(direction != Vector2.Zero)
             {
+                _direction = direction;
                 _bodyComponent.Direction = direction;
                 _bodyComponent.Position += Utils.GetPositionChange(direction, _bodyComponent.Speed, gameTime);
                 _eventBus.Push(new PositionEventArgs { Position = _bodyComponent.Position });
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && _projectileElapsed >= _projectileDelay)
+            {
+                _projectileElapsed = 0;
+                SpawnProjectile();
             }
         }
 
@@ -115,5 +129,39 @@ namespace MonoGames1.Systems
             _eventBus.Push(new CreateBodyArgs { Body = _bodyComponent.Body });
         }
 
+        private void SpawnProjectile()
+        {
+            // direction ([x, y] + [1, 1]) * 16 gives the starting position of the projectile relative to
+            // the player position 
+            Vector2 position = _bodyComponent.Position + (_direction + Vector2.One) * 16;
+
+
+            Entity projectile = CreateEntity();
+            projectile.Attach(new ProjectileComponent
+            {
+                Direction = _direction,
+                Speed = 500,
+                Damage = 10,
+                MaxAge = 1,
+            });
+
+            ProjectileBody projectileBody = new ProjectileBody(new RectangleF(position, new Vector2(4, 4)), _direction, 500); 
+
+            projectile.Attach(new BodyComponent { 
+                Body = projectileBody
+            });
+
+            List<Vector2> projectileVertices = new()
+            {
+                new Vector2(0, 0),
+                new Vector2(4, 0),
+                new Vector2(4, 4),
+                new Vector2(0, 4),
+            };
+
+            projectile.Attach(new ShapeComponent { Color = Color.Black, Polygon = new(projectileVertices) });
+
+            _eventBus.Push(new CreateBodyArgs { Body = projectileBody});
+        }
     }
 }

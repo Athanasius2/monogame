@@ -38,6 +38,7 @@ public class Game1 : Game
         // Initializing systems
         PlayerSystem playerSystem = new(_eventBus, worldSize);
         EnemySystem enemySystem = new(_eventBus);
+        ProjectileSystem projectileSystem = new(_eventBus);
         RenderSystem renderSystem = new(_spriteBatch);
         HealthBarSystem healthBarSystem = new(_spriteBatch);
         EnemySpawner enemySpawner =  new(_eventBus, startingEnemies, worldSize);
@@ -46,12 +47,14 @@ public class Game1 : Game
         // Register event handlers
         _eventBus.Subscribe<PositionEventArgs>(enemySystem.OnPlayerMove);
         _eventBus.Subscribe<CreateBodyArgs>(collisionSystem.OnCreateBody);
+        _eventBus.Subscribe<DestroyBodyArgs>(collisionSystem.OnDestroyBody);
         _eventBus.Subscribe<DamageEventArgs>(playerSystem.OnDamage);
         
         // Initialize systems
         _world = new WorldBuilder()
             .AddSystem(playerSystem)
             .AddSystem(enemySystem)
+            .AddSystem(projectileSystem)
             .AddSystem(enemySpawner)
             .AddSystem(collisionSystem)
             .AddSystem(renderSystem)

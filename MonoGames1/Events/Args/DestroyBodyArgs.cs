@@ -3,7 +3,7 @@ using System;
 
 namespace MonoGames1.Events.Args;
 
-public class CreateBodyArgs : EventArgs
+public class DestroyBodyArgs : EventArgs
 {
     public ICollisionActor Body = default!;
 }

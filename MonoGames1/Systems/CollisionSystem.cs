@@ -34,5 +34,10 @@ namespace MonoGames1.Systems
         {
             _collisionComponent.Insert(e.Body);
         }
+
+        public void OnDestroyBody(DestroyBodyArgs e)
+        {
+            _collisionComponent.Remove(e.Body);
+        }
     }
 }

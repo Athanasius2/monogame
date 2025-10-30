@@ -5,6 +5,7 @@ using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 using MonoGames1.Components;
 using MonoGames1.Events;
+using MonoGames1.Events.Args;
 using MonoGames1.Objects;
 
 namespace MonoGames1.Systems;
@@ -29,15 +30,16 @@ public class ProjectileSystem : EntityProcessingSystem
     public override void Process(GameTime gameTime, int entityId)
     {
         ProjectileComponent projectile = _projectileMapper.Get(entityId);
+        BodyComponent body = _bodyMapper.Get(entityId);
 
         projectile.Age += gameTime.GetElapsedSeconds();
-        if (projectile.Age > projectile.Duration)
+        if (projectile.Age > projectile.MaxAge)
         {
             DestroyEntity(entityId);
+            _eventBus.Push(new DestroyBodyArgs() { Body = body.Body });
             return;
         }
 
-        BodyComponent body = _bodyMapper.Get(entityId);
         body.Position += Utils.GetPositionChange(projectile.Direction, projectile.Speed, gameTime);
 
         while(body.Body.Others.TryDequeue(out ICollisionActor? other))
@@ -45,6 +47,7 @@ public class ProjectileSystem : EntityProcessingSystem
             if (other is not ProjectileBody)
             {
                 DestroyEntity(entityId);
+                _eventBus.Push(new DestroyBodyArgs() { Body = body.Body });
             }
         }
     }

@@ -41,8 +41,14 @@ namespace MonoGames1.Systems
             {
                 if (result is PlayerBody other)
                 {
-                    _eventBus.Push(new DamageEventArgs() { Damage = fighter.Damage });
                     DestroyEntity(entityId);
+                    _eventBus.Push(new DamageEventArgs() { Damage = fighter.Damage });
+                    _eventBus.Push(new DestroyBodyArgs() { Body = body.Body });
+                }
+                if (result is ProjectileBody)
+                {
+                    DestroyEntity(entityId);
+                    _eventBus.Push(new DestroyBodyArgs() { Body = body.Body });
                 }
             }
         }
